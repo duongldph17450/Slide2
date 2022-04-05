@@ -78,13 +78,28 @@ router.post('/hotro', function (request, response) {
 })
 
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    var random = Math.random();
+    cb(null, random + Date.now() + file.originalname);
+  }
+})
+
+var upload = multer({
+  storage: storage, limits: {
+    fileSize: 2 * 1024 * 1024
+  }
+});
 
 router.get('/upload',function (req,res) {
   res.render('upload',{title : 'Upload', message: ''});
 })
-router.post('/upload', upload.single('avatar'), function (req,res, next) {
-  res.render('upload',{title : 'Upload', message: 'Tai file thanh cong!'});
+router.post('/upload', upload.array('avatar', 5), function (req,res, next) {
+      res.render('upload',{title : 'Upload', message: 'Tai file thanh cong!'});
 })
 
 router.get('/listcar', function (req, res) {
